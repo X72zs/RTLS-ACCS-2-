@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTLS Accounts - Premium Account Sharing</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Fullscreen Image Modal -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Fullscreen image">
+        </div>
+    </div>
+
+    <!-- Edit Account Modal -->
+    <div id="editModal" class="modal" onclick="if(event.target === this) closeEditModal()">
+        <div class="modal-content" style="max-width: 500px; background: white; border-radius: 15px; padding: 30px;">
+            <h2 style="color: #667eea; margin-bottom: 20px;">Edit Account</h2>
+            <input type="hidden" id="editAccountId">
+            
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="editAccountTitle" placeholder="e.g., GTA 5 Premium Account">
+            </div>
+            
+            <div class="form-group">
+                <label>Email / Username *</label>
+                <input type="text" id="editAccountEmail" placeholder="email@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Password *</label>
+                <input type="text" id="editAccountPassword" placeholder="password123">
+            </div>
+            
+            <div class="form-group">
+                <label>Details</label>
+                <textarea id="editAccountDetails" placeholder="Account details..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="editAccountType">
+                        <option value="free">🆓 Free</option>
+                        <option value="premium">✨ Premium</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="editAccountPlatform">
+                        <option value="steam">🎮 Steam</option>
+                        <option value="xbox">🎯 Xbox</option>
+                        <option value="netflix">🎬 Netflix</option>
+                        <option value="epic">⭐ Epic Games</option>
+                        <option value="other">📦 Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="url" id="editAccountImage" placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" onclick="saveAccountChanges()">Save Changes</button>
+                <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-lock" style="font-size: 3em; color: #667eea; margin-bottom: 15px;"></i>
+                <h2>Welcome Back</h2>
+                <p>Sign in to access admin panel</p>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-key"></i> Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            
+            <button class="login-btn" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            
+            <button class="guest-btn" onclick="loginAsGuest()">
+                <i class="fas fa-user-friends"></i> Continue as Guest
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContainer" class="container" style="display: none;">
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="admin-panel" style="display: none;">
+            <div class="admin-header">
+                <div>
+                    <h2><i class="fas fa-cog"></i> Admin Dashboard</h2>
+                    <p>Manage accounts and content</p>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('accounts')">
+                    <i class="fas fa-gamepad"></i> Accounts
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('tools')">
+                    <i class="fas fa-tools"></i> Tools
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('news')">
+                    <i class="fas fa-newspaper"></i> News
+                </button>
+            </div>
+            
+            <!-- Add Account Form -->
+            <div id="accountsForm" class="admin-form">
+                <h3><i class="fas fa-plus-circle"></i> Add New Account</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="accountTitle" placeholder="e.g., GTA 5 Premium Account">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email / Username *</label>
+                        <input type="text" id="accountEmail" placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="text" id="accountPassword" placeholder="password123">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Details</label>
+                        <textarea id="accountDetails" placeholder="Account details..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="accountType">
+                            <option value="free">🆓 Free</option>
+                            <option value="premium">✨ Premium</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Platform</label>
+                        <select id="accountPlatform">
+                            <option value="steam">🎮 Steam</option>
+                            <option value="xbox">🎯 Xbox</option>
+                            <option value="netflix">🎬 Netflix</option>
+                            <option value="epic">⭐ Epic Games</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="accountImage" placeholder="https://example.com/image.jpg">
+                </div>
+                
+                <button class="btn-primary" onclick="addAccount()">
+                    <i class="fas fa-plus"></i> Add Account
+                </button>
+            </div>
+            
+            <!-- Add Tool Form -->
+            <div id="toolsForm" class="admin-form" style="display: none;">
+                <h3><i class="fas fa-plus-circle"></i> Add New Tool</h3>
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="toolTitle" placeholder="e.g., System Cleaner">
+                </div>
+                
+                <div class="form-group">
+                    <label>Download URL *</label>
+                    <input type="url" id="toolDownloadUrl" placeholder="https://example.com/tool.zip">
+                </div>
+                
+                <div class="form-group">
+                    <label>Key (Optional)</label>
+                    <input type="text" id="toolKey" placeholder="Activation key">
+                </div>
+                
+                <div class="form-group">
+                    <label>Details</label>
+                    <textarea id="toolDetails" placeholder="Tool description..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="toolImage" placeholder="https://example.com/image.jpg">
+                </div>
+                
+                <button class="btn-primary" onclick="addTool()">
+                    <i class="fas fa-plus"></i> Add Tool
+                </button>
+            </div>
+            
+            <!-- Add News Form -->
+            <div id="newsForm" class="admin-form" style="display: none;">
+                <h3><i class="fas fa-plus-circle"></i> Add News</h3>
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="newsTitle" placeholder="e.g., New Update">
+                </div>
+                
+                <div class="form-group">
+                    <label>Content *</label>
+                    <textarea id="newsContent" placeholder="News content..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="newsImage" placeholder="https://example.com/image.jpg">
+                </div>
+                
+                <button class="btn-primary" onclick="addNews()">
+                    <i class="fas fa-plus"></i> Add News
+                </button>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h3><i class="fas fa-eye"></i> Preview Items</h3>
+                <div id="adminItemsList" class="admin-items-list"></div>
+            </div>
+        </div>
+
+        <!-- Main Header -->
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>RTLS Accounts</h1>
+                </div>
+                <p class="subtitle">Sharing Accs & Tools</p>
+            </div>
+        </header>
+
+        <!-- Platform Filter -->
+        <div class="platform-filter">
+            <button class="filter-btn active" onclick="filterByPlatform('all')">All</button>
+            <button class="filter-btn" onclick="filterByPlatform('steam')"><i class="fab fa-steam"></i> Steam</button>
+            <button class="filter-btn" onclick="filterByPlatform('xbox')"><i class="fab fa-xbox"></i> Xbox</button>
+            <button class="filter-btn" onclick="filterByPlatform('netflix')"><i class="fas fa-film"></i> Netflix</button>
+            <button class="filter-btn" onclick="filterByPlatform('epic')"><i class="fab fa-epic-games"></i> Epic</button>
+            <button class="filter-btn" onclick="filterByPlatform('other')"><i class="fas fa-archive"></i> Other</button>
+        </div>
+
+        <!-- Content Switcher -->
+        <div class="content-switcher">
+            <button class="switch-btn active" onclick="switchContent('accounts')" id="switch-accounts">
+                <i class="fas fa-gamepad"></i> Accounts
+            </button>
+            <button class="switch-btn" onclick="switchContent('tools')" id="switch-tools">
+                <i class="fas fa-tools"></i> Tools
+            </button>
+            <button class="switch-btn" onclick="switchContent('news')" id="switch-news">
+                <i class="fas fa-newspaper"></i> News
+            </button>
+        </div>
+
+        <!-- Items Grid -->
+        <div id="itemsContainer">
+            <div class="items-grid" id="itemsGrid"></div>
+            <div class="news-grid" id="newsGrid" style="display: none;"></div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://dsc.gg/lmlj" target="_blank" class="discord-link">
+                        <i class="fab fa-discord"></i> Join our Discord
+                    </a>
+                </div>
+                <div class="copyright">
+                    © 2026 RTLS Accounts. All rights reserved.
+                </div>
+                <div class="version">
+                    Version 2.0.0
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
