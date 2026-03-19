@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTLS Accounts - Premium Account Sharing</title>
+    <title>RTLS Accounts - Account Sharing</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -19,7 +19,7 @@
 
     <!-- Edit Account Modal -->
     <div id="editModal" class="modal" onclick="if(event.target === this) closeEditModal()">
-        <div class="modal-content" style="max-width: 500px; background: white; border-radius: 15px; padding: 30px;">
+        <div class="modal-content" style="max-width: 600px; background: white; border-radius: 15px; padding: 30px; max-height: 90vh; overflow-y: auto;">
             <h2 style="color: #667eea; margin-bottom: 20px;">Edit Account</h2>
             <input type="hidden" id="editAccountId">
             
@@ -40,7 +40,7 @@
             
             <div class="form-group">
                 <label>Details</label>
-                <textarea id="editAccountDetails" placeholder="Account details..."></textarea>
+                <textarea id="editAccountDetails" placeholder="Account details..." rows="4"></textarea>
             </div>
             
             <div class="form-row">
@@ -133,62 +133,81 @@
                 </button>
             </div>
             
-            <!-- Add Account Form -->
+            <!-- Sync Section -->
+            <div class="sync-section">
+                <h3><i class="fas fa-sync-alt"></i> Cross-Browser Sync</h3>
+                <p class="sync-description">Export your data and import it in another browser to keep everything in sync</p>
+                <div class="sync-buttons">
+                    <button class="btn-export" onclick="exportData()">
+                        <i class="fas fa-download"></i> Export Data (Backup)
+                    </button>
+                    <button class="btn-import" onclick="document.getElementById('importFile').click()">
+                        <i class="fas fa-upload"></i> Import Data (Restore)
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                </div>
+                <div class="sync-note">
+                    <i class="fas fa-info-circle"></i> Export from Chrome, import in Edge/Firefox to sync all data
+                </div>
+            </div>
+            
+            <!-- Add Account Form with Multiple Accounts -->
             <div id="accountsForm" class="admin-form">
-                <h3><i class="fas fa-plus-circle"></i> Add New Account</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Title *</label>
-                        <input type="text" id="accountTitle" placeholder="e.g., GTA 5 Premium Account">
-                    </div>
-                </div>
+                <h3><i class="fas fa-plus-circle"></i> Add Multiple Accounts</h3>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Email / Username *</label>
-                        <input type="text" id="accountEmail" placeholder="email@example.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Password *</label>
-                        <input type="text" id="accountPassword" placeholder="password123">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Details</label>
-                        <textarea id="accountDetails" placeholder="Account details..."></textarea>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Type</label>
-                        <select id="accountType">
-                            <option value="free">🆓 Free</option>
-                            <option value="premium">✨ Premium</option>
-                        </select>
+                <div class="bulk-add-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Platform <span class="required">*</span></label>
+                            <select id="bulkAccountPlatform" class="bulk-platform">
+                                <option value="steam">🎮 Steam</option>
+                                <option value="xbox">🎯 Xbox</option>
+                                <option value="netflix">🎬 Netflix</option>
+                                <option value="epic">⭐ Epic Games</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Account Type <span class="required">*</span></label>
+                            <select id="bulkAccountType" class="bulk-type">
+                                <option value="free">🆓 Free</option>
+                                <option value="premium">✨ Premium</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label>Platform</label>
-                        <select id="accountPlatform">
-                            <option value="steam">🎮 Steam</option>
-                            <option value="xbox">🎯 Xbox</option>
-                            <option value="netflix">🎬 Netflix</option>
-                            <option value="epic">⭐ Epic Games</option>
-                            <option value="other">📦 Other</option>
-                        </select>
+                        <label>Image URL (Optional - same for all)</label>
+                        <input type="url" id="bulkAccountImage" class="bulk-image" placeholder="https://example.com/image.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Title (Optional - same for all)</label>
+                        <input type="text" id="bulkAccountTitle" class="bulk-title" placeholder="e.g., Steam Premium Accounts">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Details (Optional - same for all)</label>
+                        <textarea id="bulkAccountDetails" class="bulk-details" placeholder="Account details..." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="bulk-accounts-section">
+                        <div class="section-header">
+                            <h4><i class="fas fa-list"></i> Accounts List</h4>
+                            <button type="button" class="btn-add-row" onclick="addAccountRow()">
+                                <i class="fas fa-plus"></i> Add Another Account
+                            </button>
+                        </div>
+                        
+                        <div id="accountsContainer" class="accounts-container">
+                            <!-- Account rows will be added here -->
+                        </div>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="url" id="accountImage" placeholder="https://example.com/image.jpg">
-                </div>
-                
-                <button class="btn-primary" onclick="addAccount()">
-                    <i class="fas fa-plus"></i> Add Account
+                <button class="btn-primary btn-large" onclick="addBulkAccounts()">
+                    <i class="fas fa-cloud-upload-alt"></i> Publish All Accounts
                 </button>
             </div>
             
@@ -212,7 +231,7 @@
                 
                 <div class="form-group">
                     <label>Details</label>
-                    <textarea id="toolDetails" placeholder="Tool description..."></textarea>
+                    <textarea id="toolDetails" placeholder="Tool description..." rows="4"></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -235,7 +254,7 @@
                 
                 <div class="form-group">
                     <label>Content *</label>
-                    <textarea id="newsContent" placeholder="News content..."></textarea>
+                    <textarea id="newsContent" placeholder="News content..." rows="4"></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -307,7 +326,7 @@
                     © 2026 RTLS Accounts. All rights reserved.
                 </div>
                 <div class="version">
-                    Version 2.0.0
+                    Version 2.1.0
                 </div>
             </div>
         </footer>
