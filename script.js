@@ -1,3 +1,4 @@
+// script.js
 // =============================================
 // Admin Credentials
 // =============================================
@@ -11,6 +12,7 @@ let accounts = [];
 let tools = [];
 let news = [];
 let currentFilter = 'all';
+let currentAdminTab = 'accounts';
 
 // Load data from localStorage
 function loadData() {
@@ -93,6 +95,187 @@ function saveData() {
 }
 
 // =============================================
+// Export/Import Functions (Cross-Browser Sync)
+// =============================================
+window.exportData = function() {
+    const data = {
+        accounts: accounts,
+        tools: tools,
+        news: news,
+        exportDate: new Date().toLocaleString(),
+        version: '2.1.0'
+    };
+    
+    const dataStr = JSON.stringify(data, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `rtls_backup_${new Date().toISOString().slice(0,10)}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    // Show success message
+    alert('✅ Data exported successfully!\n\nUse "Import Data" in another browser to sync.');
+};
+
+window.importData = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            if (data.accounts) {
+                accounts = data.accounts;
+                localStorage.setItem('rtls_accounts', JSON.stringify(accounts));
+            }
+            if (data.tools) {
+                tools = data.tools;
+                localStorage.setItem('rtls_tools', JSON.stringify(tools));
+            }
+            if (data.news) {
+                news = data.news;
+                localStorage.setItem('rtls_news', JSON.stringify(news));
+            }
+            
+            alert('✅ Data imported successfully!\n\nAll browsers will now show the same data.');
+            displayAdminItems(currentAdminTab);
+            if (currentContent) displayItems();
+        } catch (error) {
+            alert('❌ Invalid file format. Please select a valid backup file.');
+        }
+    };
+    reader.readAsText(file);
+    
+    // Reset input
+    event.target.value = '';
+};
+
+// =============================================
+// Bulk Accounts Functions
+// =============================================
+let accountRowCount = 0;
+
+window.addAccountRow = function() {
+    accountRowCount++;
+    const container = document.getElementById('accountsContainer');
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'account-row';
+    rowDiv.id = `account-row-${accountRowCount}`;
+    
+    rowDiv.innerHTML = `
+        <div class="row-header">
+            <span><i class="fas fa-user"></i> Account #${accountRowCount}</span>
+            <button type="button" class="btn-remove-row" onclick="removeAccountRow(${accountRowCount})">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email/Username *</label>
+                <input type="text" id="accountEmail_${accountRowCount}" class="account-email" placeholder="email@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Password *</label>
+                <input type="text" id="accountPassword_${accountRowCount}" class="account-password" placeholder="password123" required>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(rowDiv);
+};
+
+window.removeAccountRow = function(id) {
+    const row = document.getElementById(`account-row-${id}`);
+    if (row) row.remove();
+};
+
+window.addBulkAccounts = function() {
+    if (sessionStorage.getItem('rtls_admin') !== 'true') {
+        alert('❌ Admin access required');
+        return;
+    }
+    
+    const platform = document.getElementById('bulkAccountPlatform').value;
+    const type = document.getElementById('bulkAccountType').value;
+    const bulkTitle = document.getElementById('bulkAccountTitle').value;
+    const bulkDetails = document.getElementById('bulkAccountDetails').value;
+    const bulkImage = document.getElementById('bulkAccountImage').value;
+    
+    const accountRows = document.querySelectorAll('.account-row');
+    let addedCount = 0;
+    
+    if (accountRows.length === 0) {
+        alert('Please add at least one account');
+        return;
+    }
+    
+    accountRows.forEach(row => {
+        const emailInput = row.querySelector('.account-email');
+        const passwordInput = row.querySelector('.account-password');
+        
+        const email = emailInput?.value;
+        const password = passwordInput?.value;
+        
+        if (!email || !password) {
+            alert('Please fill all email and password fields');
+            return;
+        }
+        
+        // Generate title
+        let title = bulkTitle;
+        if (!title) {
+            const platforms = {
+                'steam': 'Steam',
+                'xbox': 'Xbox',
+                'netflix': 'Netflix',
+                'epic': 'Epic Games',
+                'other': 'Account'
+            };
+            title = `${platforms[platform]} ${type === 'premium' ? 'Premium' : 'Free'} Account`;
+        }
+        
+        const newAccount = {
+            id: Date.now() + addedCount,
+            type: type,
+            platform: platform,
+            title: title,
+            email: email,
+            password: password,
+            details: bulkDetails || `${type === 'premium' ? '✨ Premium' : '🆓 Free'} account`,
+            date: formatDate(new Date()),
+            imageUrl: bulkImage || 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=600'
+        };
+        
+        accounts.unshift(newAccount);
+        addedCount++;
+    });
+    
+    saveData();
+    
+    // Clear all rows
+    document.getElementById('accountsContainer').innerHTML = '';
+    accountRowCount = 0;
+    
+    // Clear bulk fields
+    document.getElementById('bulkAccountTitle').value = '';
+    document.getElementById('bulkAccountDetails').value = '';
+    document.getElementById('bulkAccountImage').value = '';
+    
+    // Add one empty row by default
+    addAccountRow();
+    
+    displayAdminItems('accounts');
+    if (currentContent === 'accounts') displayItems();
+    
+    alert(`✅ Successfully published ${addedCount} accounts!`);
+};
+
+// =============================================
 // Authentication
 // =============================================
 function checkAuth() {
@@ -109,6 +292,11 @@ function checkAuth() {
         loadData();
         displayItems();
         updateNotificationBadges();
+        
+        // Add default account row for admin
+        if (isAdmin === 'true' && document.getElementById('accountsContainer').children.length === 0) {
+            addAccountRow();
+        }
     } else {
         loginContainer.style.display = 'flex';
         mainContainer.style.display = 'none';
@@ -154,6 +342,8 @@ window.copyToClipboard = function(text, button) {
         setTimeout(() => {
             button.innerHTML = originalText;
         }, 2000);
+    }).catch(() => {
+        alert('Failed to copy');
     });
 };
 
@@ -201,6 +391,7 @@ window.saveAccountChanges = function() {
     closeEditModal();
     displayAdminItems('accounts');
     if (currentContent === 'accounts') displayItems();
+    alert('✅ Account updated successfully!');
 };
 
 // =============================================
@@ -220,51 +411,6 @@ window.filterByPlatform = function(platform) {
 // =============================================
 // Admin Functions
 // =============================================
-window.addAccount = function() {
-    if (sessionStorage.getItem('rtls_admin') !== 'true') {
-        alert('❌ Admin access required');
-        return;
-    }
-    
-    const title = document.getElementById('accountTitle').value;
-    const email = document.getElementById('accountEmail').value;
-    const password = document.getElementById('accountPassword').value;
-    const details = document.getElementById('accountDetails').value;
-    const type = document.getElementById('accountType').value;
-    const platform = document.getElementById('accountPlatform').value;
-    const imageUrl = document.getElementById('accountImage').value;
-    
-    if (!title || !email || !password) {
-        alert('Please fill all required fields');
-        return;
-    }
-    
-    const newAccount = {
-        id: Date.now(),
-        type: type,
-        platform: platform,
-        title: title,
-        email: email,
-        password: password,
-        details: details,
-        date: formatDate(new Date()),
-        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=600'
-    };
-    
-    accounts.unshift(newAccount);
-    saveData();
-    
-    // Clear form
-    document.getElementById('accountTitle').value = '';
-    document.getElementById('accountEmail').value = '';
-    document.getElementById('accountPassword').value = '';
-    document.getElementById('accountDetails').value = '';
-    document.getElementById('accountImage').value = '';
-    
-    displayAdminItems('accounts');
-    if (currentContent === 'accounts') displayItems();
-};
-
 window.addTool = function() {
     if (sessionStorage.getItem('rtls_admin') !== 'true') {
         alert('❌ Admin access required');
@@ -305,6 +451,7 @@ window.addTool = function() {
     
     displayAdminItems('tools');
     if (currentContent === 'tools') displayItems();
+    alert('✅ Tool added successfully!');
 };
 
 window.addNews = function() {
@@ -341,6 +488,7 @@ window.addNews = function() {
     
     displayAdminItems('news');
     if (currentContent === 'news') displayItems();
+    alert('✅ News added successfully!');
 };
 
 window.deleteItem = function(type, id) {
@@ -362,9 +510,11 @@ window.deleteItem = function(type, id) {
     saveData();
     displayAdminItems(type);
     if (currentContent === type) displayItems();
+    alert('✅ Item deleted successfully!');
 };
 
 function displayAdminItems(type) {
+    currentAdminTab = type;
     const container = document.getElementById('adminItemsList');
     if (!container) return;
     
@@ -374,6 +524,11 @@ function displayAdminItems(type) {
     if (type === 'accounts') items = accounts;
     else if (type === 'tools') items = tools;
     else if (type === 'news') items = news;
+    
+    if (items.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No items yet</p>';
+        return;
+    }
     
     items.forEach(item => {
         const card = document.createElement('div');
@@ -523,6 +678,11 @@ function displayAccounts() {
         filteredAccounts = accounts.filter(a => a.platform === currentFilter);
     }
     
+    if (filteredAccounts.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: white; font-size: 1.2em; grid-column: 1/-1; padding: 50px;">No accounts found</p>';
+        return;
+    }
+    
     filteredAccounts.forEach(account => {
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -545,7 +705,7 @@ function displayAccounts() {
             </div>
             <div class="item-content">
                 <h3 class="item-title">${account.title}</h3>
-                ${account.platform ? `<div class="platform-badge">${platforms[account.platform]}</div>` : ''}
+                ${account.platform ? `<div class="platform-badge">${platforms[account.platform] || ''}</div>` : ''}
                 <div class="item-details">${account.details || ''}</div>
                 <div class="item-info">
                     <div class="info-row">
@@ -574,6 +734,11 @@ function displayAccounts() {
 function displayTools() {
     const grid = document.getElementById('itemsGrid');
     grid.innerHTML = '';
+    
+    if (tools.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: white; font-size: 1.2em; grid-column: 1/-1; padding: 50px;">No tools found</p>';
+        return;
+    }
     
     tools.forEach(tool => {
         const card = document.createElement('div');
@@ -610,6 +775,11 @@ function displayTools() {
 function displayNews() {
     const grid = document.getElementById('newsGrid');
     grid.innerHTML = '';
+    
+    if (news.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: white; font-size: 1.2em; grid-column: 1/-1; padding: 50px;">No news found</p>';
+        return;
+    }
     
     news.forEach(item => {
         const card = document.createElement('div');
@@ -659,4 +829,13 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.parentElement.classList.add('image-loading');
         }
     }, true);
+    
+    // Add default account row for admin
+    if (sessionStorage.getItem('rtls_admin') === 'true') {
+        setTimeout(() => {
+            if (document.getElementById('accountsContainer').children.length === 0) {
+                addAccountRow();
+            }
+        }, 500);
+    }
 });
