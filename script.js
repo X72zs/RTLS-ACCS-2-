@@ -1,4 +1,35 @@
 // =============================================
+// حماية الملف - منع فتحه مباشرة
+// =============================================
+(function() {
+    // منع فتح الملف مباشرة
+    if (window.location.href.includes('script.js')) {
+        window.location.href = '/';
+        return;
+    }
+    
+    // منع console.log من عرض المعلومات
+    const noop = function() {};
+    if (typeof console !== 'undefined') {
+        console.log = noop;
+        console.info = noop;
+        console.warn = noop;
+        console.error = noop;
+    }
+    
+    // كشف محاولة فتح الأدوات
+    setInterval(function() {
+        const before = new Date();
+        debugger;
+        const after = new Date();
+        if (after - before > 100) {
+            document.body.innerHTML = '<div style="height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;"><h1>Access Denied</h1></div>';
+            throw new Error('Dev Tools Detected');
+        }
+    }, 1000);
+})();
+
+// =============================================
 // Admin Credentials
 // =============================================
 const ADMIN_USERNAME = "admin";
@@ -14,7 +45,7 @@ let currentFilter = 'all';
 let currentContent = 'accounts';
 let currentUser = null;
 let users = [];
-let activityLog = []; // سجل نشاطات المستخدمين
+let activityLog = [];
 let accountRowCount = 0;
 let lastVisit = { accounts: 0, tools: 0, news: 0 };
 
@@ -45,6 +76,7 @@ function saveData() {
     updateNotificationBadges();
     if (sessionStorage.getItem('rtls_admin') === 'true') {
         displayActivityLog();
+        displayUserManagement();
     }
 }
 
@@ -59,9 +91,7 @@ function formatDate(date) {
     return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
 }
 
-// =============================================
 // Activity Logger
-// =============================================
 function logActivity(action, username, details = '') {
     const entry = {
         id: Date.now(),
@@ -72,7 +102,6 @@ function logActivity(action, username, details = '') {
         formattedDate: formatDate(new Date())
     };
     activityLog.unshift(entry);
-    // Keep only last 100 entries
     if (activityLog.length > 100) activityLog.pop();
     localStorage.setItem('rtls_activity', JSON.stringify(activityLog));
 }
@@ -246,12 +275,8 @@ function displayUserManagement() {
                 </div>
             </div>
             <div class="user-card-actions">
-                <button class="user-edit-btn" onclick="editUsername(${user.id})">
-                    <i class="fas fa-edit"></i> Edit Name
-                </button>
-                <button class="user-delete-btn" onclick="deleteUser(${user.id})">
-                    <i class="fas fa-trash"></i> Delete User
-                </button>
+                <button class="user-edit-btn" onclick="editUsername(${user.id})"><i class="fas fa-edit"></i> Edit Name</button>
+                <button class="user-delete-btn" onclick="deleteUser(${user.id})"><i class="fas fa-trash"></i> Delete User</button>
             </div>
         </div>
     `).join('');
@@ -265,7 +290,6 @@ window.editUsername = function(userId) {
     if (!newName || newName.trim() === '') return;
     if (newName === user.username) return;
     
-    // Check if username exists
     if (users.find(u => u.username === newName && u.id !== userId)) {
         alert('Username already exists!');
         return;
@@ -275,7 +299,6 @@ window.editUsername = function(userId) {
     user.username = newName;
     saveData();
     
-    // Update comments with new username
     accounts.forEach(account => {
         if (account.comments) {
             account.comments.forEach(comment => {
@@ -299,14 +322,12 @@ window.deleteUser = function(userId) {
     
     if (!confirm(`Are you sure you want to delete user "${user.username}"? All their comments will be deleted.`)) return;
     
-    // Remove user's comments from all accounts
     accounts.forEach(account => {
         if (account.comments) {
             account.comments = account.comments.filter(c => c.username !== user.username);
         }
     });
     
-    // Remove user from users list
     users = users.filter(u => u.id !== userId);
     saveData();
     
@@ -374,7 +395,7 @@ window.deleteComment = function(accountId, commentId) {
 };
 
 // =============================================
-// Admin Tab Switcher (Updated)
+// Admin Tab Switcher
 // =============================================
 window.switchAdminTab = function(tab) {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -833,7 +854,6 @@ window.updateLastVisit = function(content) {
     localStorage.setItem('rtls_lastVisit', JSON.stringify(lastVisit));
 };
 
-// Helper function to escape HTML
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
