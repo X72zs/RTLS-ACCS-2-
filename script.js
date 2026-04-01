@@ -652,17 +652,27 @@ function displayAccounts() {
         
         return `
             <div class="item-card">
-                <div class="item-type ${acc.type}">${acc.type === 'premium' ? '✨ PREMIUM' : '🆓 FREE'}</div>
+                <div class="item-card-titlebar">
+                    <div style="display:flex;align-items:center;gap:4px;overflow:hidden;">
+                        <span class="item-type ${acc.type}">${acc.type === 'premium' ? 'PREMIUM' : 'FREE'}</span>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(acc.title)}</span>
+                    </div>
+                    <div style="display:flex;gap:2px;flex-shrink:0;">
+                        <button class="win-btn-titlebar" style="color:#000;">_</button>
+                        <button class="win-btn-titlebar">&#9633;</button>
+                        <button class="win-btn-titlebar" style="color:#cc0000;font-weight:bold;">&#x2715;</button>
+                    </div>
+                </div>
                 <div class="item-image" onclick="openFullscreen('${acc.imageUrl}')">
                     <img src="${acc.imageUrl}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                    <div class="fullscreen-icon" onclick="event.stopPropagation();openFullscreen('${acc.imageUrl}')">⛶</div>
+                    <div class="fullscreen-icon" onclick="event.stopPropagation();openFullscreen('${acc.imageUrl}')"><i class="fas fa-expand"></i></div>
                 </div>
                 <div class="item-content">
                     <h3 class="item-title">${escapeHtml(acc.title)}</h3>
                     <div class="platform-badge"><i class="fab fa-${acc.platform === 'steam' ? 'steam' : acc.platform === 'xbox' ? 'xbox' : acc.platform === 'epic' ? 'epic-games' : 'archive'}"></i> ${platforms[acc.platform] || 'Other'}</div>
                     <div class="account-info-section">
-                        <div class="info-row"><span><i class="fas fa-envelope"></i> ${escapeHtml(acc.email)}</span><button class="copy-btn" onclick="copyToClipboard('${acc.email}', this)"><i class="fas fa-copy"></i> Copy</button></div>
-                        <div class="info-row"><span><i class="fas fa-key"></i> ${escapeHtml(acc.password)}</span><button class="copy-btn" onclick="copyToClipboard('${acc.password}', this)"><i class="fas fa-copy"></i> Copy</button></div>
+                        <div class="info-row"><span>${escapeHtml(acc.email)}</span><button class="copy-btn" onclick="copyToClipboard('${acc.email}', this)">Copy</button></div>
+                        <div class="info-row"><span>${escapeHtml(acc.password)}</span><button class="copy-btn" onclick="copyToClipboard('${acc.password}', this)">Copy</button></div>
                     </div>
                     <div class="interaction-buttons">
                         <button class="like-btn ${liked ? 'liked' : ''}" onclick="likeAccount(${acc.id})"><i class="fas fa-thumbs-up"></i> <span>${acc.likes?.length || 0}</span></button>
@@ -681,9 +691,9 @@ function displayAccounts() {
                                 ${isAdmin ? `<button class="comment-admin-delete" onclick="deleteComment(${acc.id}, ${c.id})"><i class="fas fa-trash"></i></button>` : ''}
                             </div>
                         `).join('')}</div>
-                        <div class="add-comment"><input type="text" id="comment-${acc.id}" placeholder="Write a comment..."><button onclick="addComment(${acc.id})"><i class="fas fa-paper-plane"></i> Send</button></div>
+                        <div class="add-comment"><input type="text" id="comment-${acc.id}" placeholder="Write a comment..."><button onclick="addComment(${acc.id})">Send</button></div>
                     </div>
-                    <div class="item-footer"><span class="item-date"><i class="far fa-clock"></i> ${acc.date}</span></div>
+                    <div class="item-footer"><span class="item-date">${acc.date}</span></div>
                 </div>
             </div>
         `;
@@ -696,9 +706,19 @@ function displayTools() {
     if (!tools.length) { grid.innerHTML = '<p style="text-align:center;color:white;padding:50px;">No tools</p>'; return; }
     grid.innerHTML = tools.map(tool => `
         <div class="item-card">
-            <div class="item-type tool">🛠️ TOOL</div>
-            <div class="item-image" onclick="openFullscreen('${tool.imageUrl}')"><img src="${tool.imageUrl}" onerror="this.src='https://via.placeholder.com/300x200?text=Tool'"><div class="fullscreen-icon" onclick="event.stopPropagation();openFullscreen('${tool.imageUrl}')">⛶</div></div>
-            <div class="item-content"><h3 class="item-title">${escapeHtml(tool.title)}</h3><div class="item-details">${escapeHtml(tool.details || '')}</div><div class="item-info"><div><i class="fas fa-download"></i> ${tool.downloadUrl}</div>${tool.key ? `<div><i class="fas fa-key"></i> ${tool.key}</div>` : ''}</div><div class="item-footer"><span class="item-date"><i class="far fa-clock"></i> ${tool.date}</span><button class="btn-download" onclick="window.open('${tool.downloadUrl}','_blank')"><i class="fas fa-download"></i> Download</button></div></div>
+            <div class="item-card-titlebar">
+                <div style="display:flex;align-items:center;gap:4px;overflow:hidden;">
+                    <span class="item-type tool">TOOL</span>
+                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(tool.title)}</span>
+                </div>
+                <div style="display:flex;gap:2px;flex-shrink:0;">
+                    <button class="win-btn-titlebar">_</button>
+                    <button class="win-btn-titlebar">&#9633;</button>
+                    <button class="win-btn-titlebar" style="color:#cc0000;font-weight:bold;">&#x2715;</button>
+                </div>
+            </div>
+            <div class="item-image" onclick="openFullscreen('${tool.imageUrl}')"><img src="${tool.imageUrl}" onerror="this.src='https://via.placeholder.com/300x200?text=Tool'"><div class="fullscreen-icon" onclick="event.stopPropagation();openFullscreen('${tool.imageUrl}')"><i class='fas fa-expand'></i></div></div>
+            <div class="item-content"><h3 class="item-title">${escapeHtml(tool.title)}</h3><div class="item-details" style="font-size:11px;color:#333;margin-bottom:6px;">${escapeHtml(tool.details || '')}</div><div class="account-info-section"><div class="info-row"><span>${tool.downloadUrl}</span></div>${tool.key ? `<div class="info-row"><span>Key: ${escapeHtml(tool.key)}</span></div>` : ''}</div><div class="item-footer"><span class="item-date">${tool.date}</span><button class="btn-download" onclick="window.open('${tool.downloadUrl}','_blank')"><i class="fas fa-download"></i> Download</button></div></div>
         </div>
     `).join('');
 }
@@ -709,9 +729,19 @@ function displayNews() {
     if (!news.length) { grid.innerHTML = '<p style="text-align:center;color:white;padding:50px;">No news</p>'; return; }
     grid.innerHTML = news.map(n => `
         <div class="item-card">
-            <div class="item-type news">📰 NEWS</div>
-            <div class="item-image" onclick="openFullscreen('${n.imageUrl}')"><img src="${n.imageUrl}" onerror="this.src='https://via.placeholder.com/600x400?text=News'"><div class="fullscreen-icon" onclick="event.stopPropagation();openFullscreen('${n.imageUrl}')">⛶</div></div>
-            <div class="item-content"><h3 class="item-title">${escapeHtml(n.title)}</h3><div class="item-details">${escapeHtml(n.content)}</div><div class="item-footer"><span class="item-date"><i class="far fa-clock"></i> ${n.date}</span></div></div>
+            <div class="item-card-titlebar">
+                <div style="display:flex;align-items:center;gap:4px;overflow:hidden;">
+                    <span class="item-type news">NEWS</span>
+                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(n.title)}</span>
+                </div>
+                <div style="display:flex;gap:2px;flex-shrink:0;">
+                    <button class="win-btn-titlebar">_</button>
+                    <button class="win-btn-titlebar">&#9633;</button>
+                    <button class="win-btn-titlebar" style="color:#cc0000;font-weight:bold;">&#x2715;</button>
+                </div>
+            </div>
+            <div class="item-image" onclick="openFullscreen('${n.imageUrl}')"><img src="${n.imageUrl}" onerror="this.src='https://via.placeholder.com/600x400?text=News'"><div class="fullscreen-icon" onclick="event.stopPropagation();openFullscreen('${n.imageUrl}')"><i class='fas fa-expand'></i></div></div>
+            <div class="item-content"><h3 class="item-title">${escapeHtml(n.title)}</h3><div class="item-details" style="font-size:11px;color:#333;line-height:1.4;margin-bottom:6px;">${escapeHtml(n.content)}</div><div class="item-footer"><span class="item-date">${n.date}</span></div></div>
         </div>
     `).join('');
 }
