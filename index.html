@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTLS Accounts - Premium Account Sharing</title>
+    <style>
+        /* Quick fix: ensure admin tabs are in admin-body padding context */
+        .admin-panel .admin-tabs,
+        .admin-panel .sync-section,
+        .admin-panel .admin-form,
+        .admin-panel .preview-section {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .admin-body {
+            padding: 8px;
+        }
+    </style>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tahoma&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -19,81 +32,92 @@
 
     <!-- Edit Account Modal -->
     <div id="editModal" class="modal" onclick="if(event.target === this) closeEditModal()">
-        <div class="modal-content" style="max-width: 600px; background: white; border-radius: 20px; padding: 30px; max-height: 90vh; overflow-y: auto;">
-            <h2 style="color: #667eea; margin-bottom: 20px;"><i class="fas fa-edit"></i> Edit Account</h2>
-            <input type="hidden" id="editAccountId">
-            <div class="form-group">
-                <label><i class="fas fa-tag"></i> Title</label>
-                <input type="text" id="editAccountTitle" placeholder="Account title">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="text" id="editAccountEmail" placeholder="Email">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-key"></i> Password</label>
-                <input type="text" id="editAccountPassword" placeholder="Password">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-info-circle"></i> Details</label>
-                <textarea id="editAccountDetails" rows="3" placeholder="Account details..."></textarea>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label><i class="fas fa-star"></i> Type</label>
-                    <select id="editAccountType">
-                        <option value="free">🆓 Free</option>
-                        <option value="premium">✨ Premium</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-gamepad"></i> Platform</label>
-                    <select id="editAccountPlatform">
-                        <option value="steam">🎮 Steam</option>
-                        <option value="xbox">🎯 Xbox</option>
-                        <option value="netflix">🎬 Netflix</option>
-                        <option value="epic">⭐ Epic Games</option>
-                        <option value="other">📦 Other</option>
-                    </select>
+        <div class="modal-content">
+            <div class="win-dialog-titlebar">
+                <div style="display:flex;align-items:center;gap:5px;"><i class="fas fa-edit" style="font-size:11px;"></i> Edit Account</div>
+                <div class="win-titlebar-buttons">
+                    <button class="win-btn-titlebar" onclick="closeEditModal()">&#x2715;</button>
                 </div>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-image"></i> Image URL</label>
-                <input type="url" id="editAccountImage" placeholder="https://example.com/image.jpg">
+            <div class="win-dialog-body">
+                <input type="hidden" id="editAccountId">
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="editAccountTitle" placeholder="Account title">
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" id="editAccountEmail" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="text" id="editAccountPassword" placeholder="Password">
+                </div>
+                <div class="form-group">
+                    <label>Details:</label>
+                    <textarea id="editAccountDetails" rows="3" placeholder="Account details..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type:</label>
+                        <select id="editAccountType">
+                            <option value="free">Free</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Platform:</label>
+                        <select id="editAccountPlatform">
+                            <option value="steam">Steam</option>
+                            <option value="xbox">Xbox</option>
+                            <option value="netflix">Netflix</option>
+                            <option value="epic">Epic Games</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image URL:</label>
+                    <input type="url" id="editAccountImage" placeholder="https://example.com/image.jpg">
+                </div>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" onclick="saveAccountChanges()"><i class="fas fa-save"></i> Save Changes</button>
-                <button class="btn-secondary" onclick="closeEditModal()"><i class="fas fa-times"></i> Cancel</button>
+            <div class="win-dialog-footer">
+                <button class="btn-primary" onclick="saveAccountChanges()"><i class="fas fa-save"></i> Save</button>
+                <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- Create Account Modal -->
     <div id="createAccountModal" class="modal" onclick="if(event.target === this) closeCreateAccountModal()">
-        <div class="modal-content" style="max-width: 480px; background: white; border-radius: 24px; padding: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="color: #667eea;"><i class="fas fa-user-plus"></i> Create Account</h2>
-                <button onclick="closeCreateAccountModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
+        <div class="modal-content">
+            <div class="win-dialog-titlebar">
+                <div style="display:flex;align-items:center;gap:5px;"><i class="fas fa-user-plus" style="font-size:11px;"></i> Create New Account</div>
+                <div class="win-titlebar-buttons">
+                    <button class="win-btn-titlebar" onclick="closeCreateAccountModal()">&#x2715;</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-user"></i> Username *</label>
-                <input type="text" id="newUsername" placeholder="Choose a username">
+            <div class="win-dialog-body">
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" id="newUsername" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="newEmail" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="newPassword" placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password *</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm password">
+                </div>
             </div>
-            <div class="form-group">
-                <label><i class="fas fa-envelope"></i> Email *</label>
-                <input type="email" id="newEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-key"></i> Password *</label>
-                <input type="password" id="newPassword" placeholder="Create a password">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-check-circle"></i> Confirm Password *</label>
-                <input type="password" id="confirmPassword" placeholder="Confirm password">
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" onclick="registerUser()" style="flex:1"><i class="fas fa-check"></i> Create Account</button>
-                <button class="btn-secondary" onclick="closeCreateAccountModal()" style="flex:1"><i class="fas fa-times"></i> Cancel</button>
+            <div class="win-dialog-footer">
+                <button class="btn-primary" onclick="registerUser()"><i class="fas fa-check"></i> OK</button>
+                <button class="btn-secondary" onclick="closeCreateAccountModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -102,23 +126,31 @@
     <div id="loginContainer" class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <div class="login-icon"><i class="fas fa-shield-alt"></i></div>
-                <h2>Welcome Back</h2>
-                <p>Sign in to access your account</p>
+                <div class="login-header-title">
+                    <div class="login-icon"><i class="fas fa-shield-alt"></i></div>
+                    RTLS Accounts - Sign In
+                </div>
+                <div class="win-titlebar-buttons">
+                    <button class="win-btn-titlebar">_</button>
+                    <button class="win-btn-titlebar">&#9633;</button>
+                    <button class="win-btn-titlebar" style="color:#cc0000;font-weight:bold;">&#x2715;</button>
+                </div>
             </div>
-            <div id="errorMessage" class="error-message"></div>
-            <div class="input-group">
-                <label><i class="fas fa-user"></i> Username / Email</label>
-                <input type="text" id="username" placeholder="Enter username or email">
+            <div class="login-body">
+                <div id="errorMessage" class="error-message"></div>
+                <div class="input-group">
+                    <label>Username / Email:</label>
+                    <input type="text" id="username" placeholder="">
+                </div>
+                <div class="input-group">
+                    <label>Password:</label>
+                    <input type="password" id="password" placeholder="">
+                </div>
+                <button class="login-btn" onclick="login()"><i class="fas fa-sign-in-alt"></i> OK</button>
+                <div class="auth-divider"><span>or</span></div>
+                <button class="create-account-btn" onclick="showCreateAccountModal()"><i class="fas fa-user-plus"></i> Create New Account</button>
+                <button class="guest-btn" onclick="loginAsGuest()"><i class="fas fa-user-friends"></i> Continue as Guest</button>
             </div>
-            <div class="input-group">
-                <label><i class="fas fa-key"></i> Password</label>
-                <input type="password" id="password" placeholder="Enter password">
-            </div>
-            <button class="login-btn" onclick="login()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-            <div class="auth-divider"><span>or</span></div>
-            <button class="create-account-btn" onclick="showCreateAccountModal()"><i class="fas fa-user-plus"></i> Create New Account</button>
-            <button class="guest-btn" onclick="loginAsGuest()"><i class="fas fa-user-friends"></i> Continue as Guest</button>
         </div>
     </div>
 
@@ -139,11 +171,20 @@
         <!-- Admin Panel -->
         <div id="adminPanel" class="admin-panel" style="display: none;">
             <div class="admin-header">
-                <div>
-                    <h2><i class="fas fa-crown"></i> Admin Dashboard</h2>
-                    <p>Manage accounts, tools, news, users and comments</p>
+                <div class="header-titlebar-left">
+                    <i class="fas fa-crown" style="font-size:12px;"></i>
+                    Admin Dashboard
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:9px;color:#ccd8ff;">Manage accounts, tools, news, users and comments</span>
+                    <div class="win-titlebar-buttons">
+                        <button class="win-btn-titlebar">_</button>
+                        <button class="win-btn-titlebar">&#9633;</button>
+                        <button class="win-btn-titlebar" style="color:#cc0000;font-weight:bold;">&#x2715;</button>
+                    </div>
                 </div>
             </div>
+            <div class="admin-body">
             
             <div class="admin-tabs">
                 <button class="admin-tab active" onclick="switchAdminTab('accounts')"><i class="fas fa-gamepad"></i> Accounts</button>
@@ -279,15 +320,29 @@
                 <h3><i class="fas fa-eye"></i> Preview Items</h3>
                 <div id="adminItemsList" class="admin-items-list"></div>
             </div>
+            </div><!-- end admin-body -->
         </div>
 
         <!-- Main Header -->
         <header>
-            <div class="logo">
-                <i class="fas fa-shield-alt"></i>
-                <h1>RTLS Accounts</h1>
+            <div class="header-titlebar">
+                <div class="header-titlebar-left">
+                    <i class="fas fa-shield-alt" style="font-size:12px;"></i>
+                    RTLS Accounts
+                </div>
+                <div class="win-titlebar-buttons">
+                    <button class="win-btn-titlebar">_</button>
+                    <button class="win-btn-titlebar">&#9633;</button>
+                    <button class="win-btn-titlebar" style="color:#cc0000;font-weight:bold;">&#x2715;</button>
+                </div>
             </div>
-            <p class="subtitle">Premium account sharing platform</p>
+            <div class="header-body">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>RTLS Accounts</h1>
+                </div>
+                <p class="subtitle">Premium account sharing platform</p>
+            </div>
         </header>
 
         <!-- Platform Filter -->
@@ -325,6 +380,36 @@
         </footer>
     </div>
 
+    <!-- Windows 2000 Taskbar -->
+    <div class="win-taskbar">
+        <button class="win-start-btn" onclick="alert('Start menu not available in this version.\n\nWindows 2000 Professional')">
+            <i class="fab fa-windows" style="color:#cc0000;"></i> <strong>Start</strong>
+        </button>
+        <div class="win-taskbar-divider"></div>
+        <button class="win-btn-titlebar" style="width:auto;padding:0 8px;height:22px;font-size:11px;background:#d4d0c8;" title="RTLS Accounts">
+            <i class="fas fa-shield-alt" style="margin-right:4px;color:#0a246a;"></i> RTLS Accounts
+        </button>
+        <div class="win-taskbar-tray" style="margin-left:auto;">
+            <i class="fas fa-volume-up" title="Volume" style="font-size:12px;cursor:pointer;"></i>
+            <i class="fas fa-network-wired" title="Network" style="font-size:12px;cursor:pointer;"></i>
+        </div>
+        <div class="win-taskbar-clock" id="taskbarClock">12:00 PM</div>
+    </div>
+
     <script src="script.js"></script>
+    <script>
+        // Taskbar clock
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours(), m = now.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            m = m < 10 ? '0' + m : m;
+            const el = document.getElementById('taskbarClock');
+            if (el) el.textContent = h + ':' + m + ' ' + ampm;
+        }
+        updateClock();
+        setInterval(updateClock, 10000);
+    </script>
 </body>
 </html>
