@@ -4,6 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTLS Accounts - Premium Account Sharing</title>
+    
+    <!-- ============================================= -->
+    <!-- حماية متقدمة - منع الوصول للمصدر -->
+    <!-- ============================================= -->
+    <script>
+        // منع النقر بزر الفأرة الأيمن
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // منع اختصارات لوحة المفاتيح الخطيرة
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // كشف محاولة فتح Dev Tools
+        (function() {
+            const devToolsChecker = {
+                isOpen: false,
+                
+                check: function() {
+                    const widthThreshold = window.outerWidth - window.innerWidth > 160;
+                    const heightThreshold = window.outerHeight - window.innerHeight > 160;
+                    
+                    if (widthThreshold || heightThreshold) {
+                        if (!this.isOpen) {
+                            this.isOpen = true;
+                            this.onOpen();
+                        }
+                    } else {
+                        if (this.isOpen) {
+                            this.isOpen = false;
+                        }
+                    }
+                    
+                    const element = new Image();
+                    Object.defineProperty(element, 'id', {
+                        get: function() {
+                            if (!devToolsChecker.isOpen) {
+                                devToolsChecker.isOpen = true;
+                                devToolsChecker.onOpen();
+                            }
+                            return '';
+                        }
+                    });
+                    
+                    try {
+                        console.log('%c', element);
+                    } catch(e) {}
+                },
+                
+                onOpen: function() {
+                    document.body.innerHTML = `
+                        <div style="height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; font-family:'Poppins', sans-serif; text-align:center; padding:20px;">
+                            <div>
+                                <h1 style="font-size:4em; margin-bottom:20px;">🚫</h1>
+                                <h2 style="font-size:2em; margin-bottom:10px;">Developer Tools Detected!</h2>
+                                <p style="font-size:1.2em; opacity:0.9;">Access to developer tools is disabled.</p>
+                                <p style="font-size:1em; opacity:0.7; margin-top:20px;">Please close developer tools to continue.</p>
+                                <button onclick="location.reload()" style="margin-top:20px; padding:10px 25px; background:white; color:#667eea; border:none; border-radius:30px; cursor:pointer;">Refresh Page</button>
+                            </div>
+                        </div>
+                    `;
+                    throw new Error('Dev Tools Detected');
+                }
+            };
+            
+            setInterval(function() {
+                devToolsChecker.check();
+            }, 1000);
+            
+            window.addEventListener('resize', function() {
+                devToolsChecker.check();
+            });
+        })();
+
+        // تعطيل وظيفة console.log بالكامل
+        if (typeof console !== 'undefined') {
+            const noop = function() {};
+            console.log = noop;
+            console.info = noop;
+            console.warn = noop;
+            console.error = noop;
+            console.debug = noop;
+            console.table = noop;
+            console.trace = noop;
+        }
+
+        // منع سحب النص وتحديده
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // منع نسخ النص
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('cut', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('paste', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // منع عرض شفرة المصدر
+        if (window.location.protocol === 'view-source:' || window.location.href.includes('view-source')) {
+            window.location.href = window.location.href.replace('view-source:', '');
+        }
+        
+        if (window.location.href.includes('.js') || window.location.href.includes('.css')) {
+            window.location.href = '/';
+        }
+        
+        // كشف محاولة فتح الأدوات من خلال debugger
+        setInterval(function() {
+            const before = new Date();
+            debugger;
+            const after = new Date();
+            if (after - before > 100) {
+                document.body.innerHTML = `
+                    <div style="height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; font-family:'Poppins', sans-serif; text-align:center;">
+                        <div>
+                            <h1>⚠️ Access Denied</h1>
+                            <p>Developer tools detected</p>
+                        </div>
+                    </div>
+                `;
+                throw new Error('Debugger Detected');
+            }
+        }, 1000);
+    </script>
+    
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -24,19 +199,19 @@
             <input type="hidden" id="editAccountId">
             <div class="form-group">
                 <label><i class="fas fa-tag"></i> Title</label>
-                <input type="text" id="editAccountTitle" placeholder="Account title">
+                <input type="text" id="editAccountTitle">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-envelope"></i> Email</label>
-                <input type="text" id="editAccountEmail" placeholder="Email">
+                <input type="text" id="editAccountEmail">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-key"></i> Password</label>
-                <input type="text" id="editAccountPassword" placeholder="Password">
+                <input type="text" id="editAccountPassword">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-info-circle"></i> Details</label>
-                <textarea id="editAccountDetails" rows="3" placeholder="Account details..."></textarea>
+                <textarea id="editAccountDetails" rows="3"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -59,10 +234,10 @@
             </div>
             <div class="form-group">
                 <label><i class="fas fa-image"></i> Image URL</label>
-                <input type="url" id="editAccountImage" placeholder="https://example.com/image.jpg">
+                <input type="url" id="editAccountImage">
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" onclick="saveAccountChanges()"><i class="fas fa-save"></i> Save Changes</button>
+                <button class="btn-primary" onclick="saveAccountChanges()"><i class="fas fa-save"></i> Save</button>
                 <button class="btn-secondary" onclick="closeEditModal()"><i class="fas fa-times"></i> Cancel</button>
             </div>
         </div>
@@ -73,7 +248,7 @@
         <div class="modal-content" style="max-width: 480px; background: white; border-radius: 24px; padding: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="color: #667eea;"><i class="fas fa-user-plus"></i> Create Account</h2>
-                <button onclick="closeCreateAccountModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
+                <button onclick="closeCreateAccountModal()" style="background: none; border: none; font-size: 28px; cursor: pointer;">&times;</button>
             </div>
             <div class="form-group">
                 <label><i class="fas fa-user"></i> Username *</label>
@@ -92,8 +267,8 @@
                 <input type="password" id="confirmPassword" placeholder="Confirm password">
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-primary" onclick="registerUser()" style="flex:1"><i class="fas fa-check"></i> Create Account</button>
-                <button class="btn-secondary" onclick="closeCreateAccountModal()" style="flex:1"><i class="fas fa-times"></i> Cancel</button>
+                <button class="btn-primary" onclick="registerUser()" style="flex:1">Create Account</button>
+                <button class="btn-secondary" onclick="closeCreateAccountModal()" style="flex:1">Cancel</button>
             </div>
         </div>
     </div>
@@ -188,15 +363,15 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-image"></i> Image URL (Optional - same for all)</label>
+                    <label><i class="fas fa-image"></i> Image URL (Optional)</label>
                     <input type="url" id="bulkAccountImage" placeholder="https://example.com/image.jpg">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Title (Optional - same for all)</label>
+                    <label><i class="fas fa-tag"></i> Title (Optional)</label>
                     <input type="text" id="bulkAccountTitle" placeholder="e.g., Steam Premium Accounts">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-info-circle"></i> Details (Optional - same for all)</label>
+                    <label><i class="fas fa-info-circle"></i> Details (Optional)</label>
                     <textarea id="bulkAccountDetails" rows="3" placeholder="Account details..."></textarea>
                 </div>
                 <div class="bulk-accounts-section">
