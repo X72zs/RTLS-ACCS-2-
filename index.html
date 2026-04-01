@@ -5,58 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTLS Accounts - Premium Account Sharing</title>
     
-    <!-- ============================================= -->
-    <!-- حماية Dev Tools - معدلة -->
-    <!-- ============================================= -->
+    <!-- حماية بسيطة -->
     <script>
-        // منع النقر بزر الفأرة الأيمن فقط
+        // منع النقر بزر الفأرة الأيمن
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             return false;
         });
 
-        // منع اختصارات لوحة المفاتيح الخطيرة فقط
+        // منع اختصارات لوحة المفاتيح
         document.addEventListener('keydown', function(e) {
-            // منع F12
             if (e.key === 'F12') {
                 e.preventDefault();
                 return false;
             }
-            // منع Ctrl+Shift+I
             if (e.ctrlKey && e.shiftKey && e.key === 'I') {
                 e.preventDefault();
                 return false;
             }
-            // منع Ctrl+Shift+J
-            if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-                e.preventDefault();
-                return false;
-            }
-            // منع Ctrl+U
             if (e.ctrlKey && e.key === 'u') {
                 e.preventDefault();
                 return false;
             }
-        });
-
-        // تعطيل console.log فقط
-        if (typeof console !== 'undefined') {
-            const noop = function() {};
-            console.log = noop;
-            console.info = noop;
-            console.warn = noop;
-            console.error = noop;
-        }
-        
-        // منع سحب النص وتحديده
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-            return false;
         });
         
         // منع نسخ النص
